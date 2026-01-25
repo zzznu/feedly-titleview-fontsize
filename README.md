@@ -11,14 +11,6 @@ Userscript to customize Feedly list view font size.
 - カードの高さを抑えて表示件数を増加  
   Compact card height
 
-## インストール / Installation
-Violentmonkey / Tampermonkey で以下のURLからインストールしてください。  
-Install via Violentmonkey / Tampermonkey:
-
-https://raw.githubusercontent.com/YOUR_USERNAME/feedly-titleview-fontsize/main/feedly-custom.user.js
-
-（YOUR_USERNAMEを実際のGitHubユーザー名に置き換えてください）
-
 ## カスタマイズ / Customization
 スクリプト冒頭の以下の値を変更してフォントサイズを調整できます。  
 Edit these values at the top of the script:
