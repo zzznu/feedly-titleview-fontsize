@@ -1,17 +1,22 @@
 // ==UserScript==
 // @name         Feedly Title View Font Size
-// @namespace    https://github.com/YOUR_USERNAME/feedly-titleview-fontsize
-// @version      1.0
+// @namespace    https://github.com/zzznu/feedly-titleview-fontsize
+// @version      1.1.0
 // @description  Feedlyリストのタイトル・説明フォントサイズ統一、隙間ゼロ、高さ抑え
-// @author       ぞぬ (@zonu)
+// @author       zzznu
+// @license      MIT
 // @match        https://feedly.com/*
+// @match        https://*.feedly.com/*
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/YOUR_USERNAME/feedly-titleview-fontsize/main/feedly-titleview-fontsize.js
-// @downloadURL  https://raw.githubusercontent.com/YOUR_USERNAME/feedly-titleview-fontsize/main/feedly-titleview-fontsize.js
 // @run-at       document-end
+// @noframes
+// @homepageURL  https://github.com/zzznu/feedly-titleview-fontsize
+// @supportURL   https://github.com/zzznu/feedly-titleview-fontsize/issues
+// @downloadURL  https://raw.githubusercontent.com/zzznu/feedly-titleview-fontsize/main/feedly-titleview-fontsize.js
+// @updateURL    https://raw.githubusercontent.com/zzznu/feedly-titleview-fontsize/main/feedly-titleview-fontsize.js
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
     // ここを好きな数字に変えてください！
@@ -20,8 +25,10 @@
     const TAG_FONT_SIZE   = 14;     // タグ・時間などの小さめ文字サイズ（px）
 
     // 以下は触らなくてOK
+    const STYLE_ID = 'feedly-titleview-fontsize-style';
+
     const style = document.createElement('style');
-    style.id = 'zonu-feedly-custom-size';
+    style.id = STYLE_ID;
     style.textContent = `
         /* タイトルと説明（同じサイズ） */
         article.entry .EntryTitleLink,
@@ -73,8 +80,11 @@
             padding: 0 !important;
         }
 
-        /* 背景透け防止 */
-        body, .theme--dark, .fx {
+        /* 背景透け防止（ダークテーマ時のみ。
+           ライトテーマまで黒く塗ると文字が読めなくなるためスコープを限定する） */
+        .theme--dark body,
+        body.theme--dark,
+        .theme--dark .fx {
             background: #000 !important;
         }
 
@@ -87,11 +97,18 @@
 
     (document.head || document.documentElement).appendChild(style);
 
-    // 動的追加対応
+    // 動的追加対応：FeedlyがSPA遷移でheadを差し替えてもスタイルを復活させる。
+    // 変更のたびに走ると重いため requestAnimationFrame で1フレーム1回に間引く
+    let scheduled = false;
     const observer = new MutationObserver(() => {
-        if (!document.getElementById('zonu-feedly-custom-size')) {
-            document.head.appendChild(style.cloneNode(true));
-        }
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(() => {
+            scheduled = false;
+            if (!document.getElementById(STYLE_ID)) {
+                (document.head || document.documentElement).appendChild(style);
+            }
+        });
     });
     observer.observe(document.body, { childList: true, subtree: true });
 })();
